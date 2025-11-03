@@ -1,0 +1,5 @@
+{
+  "name": "LinguaLink AI",
+  "description": "Practice a new language with a real-time conversational AI partner powered by the Gemini Live API. Select a language and a topic to start a conversation.",
+  "requestFramePermissions": []
+}
