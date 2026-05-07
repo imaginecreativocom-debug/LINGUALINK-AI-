@@ -1,129 +1,104 @@
-import React, { useState, useCallback, useRef, useEffect } from 'react';
-import { useLiveConversation } from './hooks/useLiveConversation';
-import { ConversationStatus, TranscriptMessage } from './types';
-import { LanguageSelector } from './components/LanguageSelector';
-import { TopicInput } from './components/TopicInput';
-import { ControlButton } from './components/ControlButton';
-import { StatusIndicator } from './components/StatusIndicator';
-import { Transcript } from './components/Transcript';
-import { MicIcon, StopIcon, RefreshIcon, SendIcon } from './components/Icons';
+import React, { useMemo, useState } from 'react';
+
+const formatCurrency = (value: string) => {
+  const numeric = Number(value.replace(/[^\d.]/g, ''));
+  if (Number.isNaN(numeric) || numeric <= 0) return '—';
+  return new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 }).format(numeric);
+};
 
 const App: React.FC = () => {
-  const [language, setLanguage] = useState('English');
-  const [topic, setTopic] = useState('ordering a coffee and a pastry');
-  const [inputText, setInputText] = useState('');
+  const [fotoActual, setFotoActual] = useState<string | null>(null);
+  const [propuesta, setPropuesta] = useState<string | null>(null);
+  const [descripcion, setDescripcion] = useState('Rediseño de fachada y señalética para mejorar presencia de marca y atraer más clientes caminando por la zona.');
+  const [presupuesto, setPresupuesto] = useState('45000');
+  const [beneficio, setBeneficio] = useState('Incremento esperado del 20% en visitas al local y mayor recordación visual.');
 
-  const { status, transcript, error, startConversation, stopConversation, sendMessage } = useLiveConversation();
+  const presupuestoFormateado = useMemo(() => formatCurrency(presupuesto), [presupuesto]);
 
-  const handleStart = useCallback(() => {
-    if (language && topic) {
-      startConversation(language, topic);
-    }
-  }, [language, topic, startConversation]);
-
-  const handleStop = useCallback(() => {
-    stopConversation();
-    setInputText('');
-  }, [stopConversation]);
-  
-  const handleRestart = useCallback(() => {
-    stopConversation();
-    setInputText('');
-    // A small delay to ensure resources are released before restarting
-    setTimeout(() => {
-        handleStart();
-    }, 200);
-  }, [stopConversation, handleStart]);
-
-  const handleSend = useCallback(() => {
-    if (inputText.trim()) {
-      sendMessage(inputText);
-      setInputText('');
-    }
-  }, [inputText, sendMessage]);
-
-  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' && status === ConversationStatus.READY) {
-      handleSend();
-    }
+  const onFileChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+    setter: React.Dispatch<React.SetStateAction<string | null>>,
+  ) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => setter(String(reader.result));
+    reader.readAsDataURL(file);
   };
 
-  const isConversationActive = status !== ConversationStatus.NOT_STARTED && status !== ConversationStatus.STOPPED && status !== ConversationStatus.ERROR;
-
   return (
-    <div className="min-h-screen bg-slate-900 text-slate-100 flex flex-col items-center p-4 selection:bg-sky-500 selection:text-white">
-      <div className="w-full max-w-3xl flex flex-col h-screen">
-        <header className="text-center py-6">
-          <h1 className="text-4xl font-bold text-sky-400">LinguaLink AI</h1>
-          <p className="text-slate-400 mt-2">Your AI partner for mastering new languages.</p>
+    <main className="min-h-screen bg-slate-950 text-slate-100 p-4 md:p-8">
+      <div className="max-w-6xl mx-auto space-y-6">
+        <header className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+          <p className="text-xs tracking-[0.25em] uppercase text-cyan-400">Herramienta de venta</p>
+          <h1 className="text-3xl md:text-4xl font-bold mt-2">Antes / Después para vender diseño visual</h1>
+          <p className="text-slate-300 mt-3">
+            Sube el estado actual, la propuesta y construye un caso visual claro para convencer más rápido.
+          </p>
         </header>
 
-        <div className="bg-slate-800/50 backdrop-blur-sm rounded-xl p-6 border border-slate-700 shadow-lg">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-            <LanguageSelector selectedLanguage={language} onChange={setLanguage} disabled={isConversationActive} />
-            <TopicInput topic={topic} onChange={setTopic} disabled={isConversationActive} />
-          </div>
-          <div className="flex items-center justify-center space-x-4">
-            {!isConversationActive ? (
-              <ControlButton
-                onClick={handleStart}
-                label="Start Conversation"
-                icon={<MicIcon />}
-                className="bg-sky-600 hover:bg-sky-500"
-              />
-            ) : (
-              <>
-                <ControlButton
-                  onClick={handleStop}
-                  label="Stop Conversation"
-                  icon={<StopIcon />}
-                  className="bg-red-600 hover:bg-red-500"
-                />
-                <ControlButton
-                    onClick={handleRestart}
-                    label="Restart"
-                    icon={<RefreshIcon />}
-                    className="bg-slate-600 hover:bg-slate-500"
-                />
-              </>
-            )}
-          </div>
-        </div>
+        <section className="grid lg:grid-cols-2 gap-6">
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4">
+            <h2 className="text-xl font-semibold">Entradas del caso</h2>
 
-        <div className="flex-grow bg-slate-800/50 rounded-xl p-4 mt-6 border border-slate-700 shadow-lg flex flex-col min-h-0">
-          <div className="flex items-center justify-between mb-4 px-2">
-            <h2 className="text-xl font-semibold text-slate-300">Transcript</h2>
-            <StatusIndicator status={status} />
+            <label className="block">
+              <span className="text-sm text-slate-300">Foto actual</span>
+              <input type="file" accept="image/*" onChange={(e) => onFileChange(e, setFotoActual)} className="mt-2 block w-full text-sm" />
+            </label>
+
+            <label className="block">
+              <span className="text-sm text-slate-300">Propuesta</span>
+              <input type="file" accept="image/*" onChange={(e) => onFileChange(e, setPropuesta)} className="mt-2 block w-full text-sm" />
+            </label>
+
+            <label className="block">
+              <span className="text-sm text-slate-300">Descripción</span>
+              <textarea value={descripcion} onChange={(e) => setDescripcion(e.target.value)} rows={4} className="mt-2 w-full bg-slate-800 border border-slate-700 rounded-lg p-3" />
+            </label>
+
+            <label className="block">
+              <span className="text-sm text-slate-300">Presupuesto estimado (MXN)</span>
+              <input value={presupuesto} onChange={(e) => setPresupuesto(e.target.value)} className="mt-2 w-full bg-slate-800 border border-slate-700 rounded-lg p-3" />
+            </label>
+
+            <label className="block">
+              <span className="text-sm text-slate-300">Beneficio esperado</span>
+              <textarea value={beneficio} onChange={(e) => setBeneficio(e.target.value)} rows={3} className="mt-2 w-full bg-slate-800 border border-slate-700 rounded-lg p-3" />
+            </label>
           </div>
-          <Transcript transcript={transcript} />
-          {isConversationActive && (
-             <div className="mt-4 pt-4 border-t border-slate-700">
-                <div className="flex items-center space-x-2">
-                    <input
-                        type="text"
-                        value={inputText}
-                        onChange={(e) => setInputText(e.target.value)}
-                        onKeyPress={handleKeyPress}
-                        placeholder="Type your message..."
-                        disabled={status !== ConversationStatus.READY}
-                        className="flex-grow w-full bg-slate-700/50 border border-slate-600 rounded-full shadow-sm py-2 px-4 text-white focus:outline-none focus:ring-2 focus:ring-sky-500 disabled:opacity-50 disabled:cursor-not-allowed"
-                        aria-label="Your message"
-                    />
-                    <button
-                        onClick={handleSend}
-                        disabled={status !== ConversationStatus.READY}
-                        className="p-3 bg-sky-600 rounded-full text-white hover:bg-sky-500 disabled:bg-slate-600 disabled:cursor-not-allowed transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-800 focus:ring-sky-500"
-                        aria-label="Send message"
-                    >
-                        <SendIcon />
-                    </button>
-                </div>
-             </div>
-          )}
-          {error && <div className="text-center text-red-400 p-4">{error}</div>}
-        </div>
+
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4">
+            <h2 className="text-xl font-semibold">Caso visual generado</h2>
+
+            <div className="grid sm:grid-cols-2 gap-4">
+              <figure className="bg-slate-800 rounded-xl overflow-hidden border border-slate-700">
+                <figcaption className="text-center py-2 text-sm font-medium">Así está ahora</figcaption>
+                {fotoActual ? (
+                  <img src={fotoActual} alt="Estado actual" className="w-full h-56 object-cover" />
+                ) : (
+                  <div className="h-56 grid place-items-center text-slate-400 text-sm">Sube foto actual</div>
+                )}
+              </figure>
+
+              <figure className="bg-slate-800 rounded-xl overflow-hidden border border-slate-700">
+                <figcaption className="text-center py-2 text-sm font-medium text-cyan-300">Así puede quedar</figcaption>
+                {propuesta ? (
+                  <img src={propuesta} alt="Propuesta visual" className="w-full h-56 object-cover" />
+                ) : (
+                  <div className="h-56 grid place-items-center text-slate-400 text-sm">Sube propuesta</div>
+                )}
+              </figure>
+            </div>
+
+            <div className="bg-slate-800 border border-slate-700 rounded-xl p-4 space-y-3">
+              <p><span className="text-slate-400">Descripción:</span> {descripcion || '—'}</p>
+              <p><span className="text-slate-400">Presupuesto:</span> {presupuestoFormateado}</p>
+              <p><span className="text-slate-400">Beneficio esperado:</span> {beneficio || '—'}</p>
+            </div>
+          </div>
+        </section>
       </div>
-    </div>
+    </main>
   );
 };
 
