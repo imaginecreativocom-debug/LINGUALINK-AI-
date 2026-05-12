@@ -1,20 +1,25 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# Calculadora de Presupuesto (Vite + React)
 
-# Run and deploy your AI Studio app
+Si al abrir `index.html` directamente no ves nada, es normal: este proyecto usa Vite y debe ejecutarse con servidor local.
 
-This contains everything you need to run your app locally.
+## Ejecutar en local
 
-View your app in AI Studio: https://ai.studio/apps/drive/1msxmAxIcjd2lvHa9nu-X9x5F4aCsO39m
+1. Instala dependencias:
+   ```bash
+   npm install
+   ```
+2. Arranca en desarrollo:
+   ```bash
+   npm run dev
+   ```
+3. Abre en el navegador la URL que aparece en terminal (por ejemplo `http://localhost:5173/`).
 
-## Run Locally
+## Build para subir a FTP
 
-**Prerequisites:**  Node.js
+1. Compila producción:
+   ```bash
+   npm run build
+   ```
+2. Sube **todo el contenido de `dist/`** al hosting FTP.
 
-
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+> No subas los archivos fuente (`App.tsx`, `index.tsx`, etc.).
