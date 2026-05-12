@@ -1,33 +1,61 @@
-
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="es">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>LinguaLink AI</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-      body {
-        font-family: 'Inter', sans-serif;
-      }
-    </style>
-  <script type="importmap">
-{
-  "imports": {
-    "react": "https://aistudiocdn.com/react@^19.2.0",
-    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
-    "react/": "https://aistudiocdn.com/react@^19.2.0/",
-    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.28.0"
-  }
-}
-</script>
-</head>
-  <body class="bg-slate-900 text-white">
-    <div id="root"></div>
-    <script type="module" src="/index.tsx"></script>
+    <title>Calculadora de Presupuesto</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="container">
+      <section class="card">
+        <h1>Calculadora de Presupuesto</h1>
+        <p class="instructions">
+          Introduce los datos del producto o servicio y pulsa <strong>Calcular</strong>.
+          También puedes usar <strong>Limpiar</strong> para reiniciar el formulario.
+        </p>
+
+        <form id="budgetForm" novalidate>
+          <div class="grid">
+            <label>
+              Concepto
+              <input id="concepto" name="concepto" type="text" placeholder="Ej. Diseño web" required />
+            </label>
+
+            <label>
+              Cantidad
+              <input id="cantidad" name="cantidad" type="number" min="1" step="1" placeholder="1" required />
+            </label>
+
+            <label>
+              Precio unitario (€)
+              <input id="precio" name="precio" type="number" min="0" step="0.01" placeholder="100.00" required />
+            </label>
+
+            <label>
+              IVA (%)
+              <input id="iva" name="iva" type="number" min="0" step="0.01" placeholder="21" required />
+            </label>
+          </div>
+
+          <p id="error" class="error" aria-live="polite"></p>
+
+          <div class="actions">
+            <button type="submit">Calcular</button>
+            <button type="button" id="clearBtn" class="secondary">Limpiar</button>
+          </div>
+        </form>
+
+        <section class="results" aria-live="polite">
+          <h2>Resumen</h2>
+          <p><span>Concepto:</span> <strong id="rConcepto">—</strong></p>
+          <p><span>Subtotal:</span> <strong id="rSubtotal">€0.00</strong></p>
+          <p><span>IVA:</span> <strong id="rIva">€0.00</strong></p>
+          <p class="total"><span>Total:</span> <strong id="rTotal">€0.00</strong></p>
+        </section>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
   </body>
 </html>
